@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Python Conditional Statements Exam</title>
+
+  <!-- CodeMirror for Python Syntax Highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --accent-color: #38bdf8;
+      --warning-color: #ef4444;
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 20px;
+      user-select: none; /* Block selecting text */
+      -webkit-user-select: none;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding: 20px;
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    header h1 {
+      color: var(--accent-color);
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    .warning-banner {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--warning-color);
+      color: #fca5a5;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 0.85rem;
+    }
+
+    .selector-box {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      background: #0f172a;
+      color: #fff;
+      border: 1px solid var(--border-color);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .question-card {
+      display: none;
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 20px;
+    }
+
+    .question-card.active {
+      display: block;
+    }
+
+    .q-title {
+      color: var(--accent-color);
+      margin-bottom: 12px;
+      font-size: 1.2rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .q-text {
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+
+    .code-container {
+      margin-top: 15px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    .CodeMirror {
+      height: auto;
+      min-height: 180px;
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+
+    .copy-btn {
+      margin-top: 12px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      background: #1d4ed8;
+    }
+
+    #violation-log {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--warning-color);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Python Practical Assessment</h1>
+      <p>Topic: Conditional Statements (<code>if</code>, <code>elif</code>, <code>else</code>)</p>
+      <div class="warning-banner">
+        ⚠️ <strong>Security Rules:</strong> Tab switching, text selection, context menu, and screenshots are monitored. Focus must remain on this page during the test.
+      </div>
+    </header>
+
+    <div class="selector-box">
+      <label for="studentSelect">Select Your Name to Load Questions:</label>
+      <select id="studentSelect" onchange="loadStudentQuestions()">
+        <option value="">-- Choose Student Name --</option>
+      </select>
+    </div>
+
+    <div id="examArea"></div>
+  </div>
+
+  <div id="violation-log">⚠️ Action restricted! Warning logged.</div>
+
+  <script>
+    // Security & Anti-Cheating Monitoring
+    let violations = 0;
+    const warningEl = document.getElementById('violation-log');
+
+    function triggerWarning(msg) {
+      violations++;
+      warningEl.innerText = `⚠️ ${msg} (Violations: ${violations})`;
+      warningEl.style.display = 'block';
+      setTimeout(() => {
+        warningEl.style.display = 'none';
+      }, 4000);
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        triggerWarning("Tab switch detected!");
+      }
+    });
+
+    window.addEventListener("blur", () => {
+      triggerWarning("Window lost focus!");
+    });
+
+    document.addEventListener("keyup", (e) => {
+      if (e.key === "PrintScreen") {
+        navigator.clipboard.writeText("");
+        triggerWarning("Screenshots disabled!");
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (
+        (e.ctrlKey && e.key === "p") ||
+        (e.ctrlKey && e.shiftKey && (e.key === "S" || e.key === "s")) ||
+        (e.metaKey && e.shiftKey && (e.key === "3" || e.key === "4" || e.key === "5"))
+      ) {
+        e.preventDefault();
+        triggerWarning("Shortcut restricted!");
+      }
+    });
+
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+
+    // Student Database with Sentence-Form Python Questions
+    const students = [
+      { name: "Buque", q1: "Write a Python script that evaluates a student's score variable equal to 85, printing 'Passed' if the score is 75 or higher, 'Conditional' if it is between 60 and 74, and 'Failed' for any lower mark.", q2: "Create a Python script that checks a character's health points variable set to 45, printing 'Critical' if health is under 20, 'Low' if health is between 20 and 49, 'Moderate' if health is between 50 and 79, and 'Full' for all other values.", t1: "score = 85\n# Write your if, elif, else structure here:\n", t2: "hp = 45\n# Write your if, elif, elif, else structure here:\n" },
+      { name: "Tuyor", q1: "Write a Python program using a temperature variable set to 28, displaying 'Hot' if the temperature is greater than 30, 'Warm' if it is between 20 and 30 inclusive, and 'Cold' otherwise.", q2: "Write a Python script that measures vehicle speed set to 95 km/h, displaying 'Slow' if speed is under 30, 'Normal' if speed is between 30 and 79, 'Fast' if speed is between 80 and 119, and 'Overspeeding' for any higher speed.", t1: "temperature = 28\n\n", t2: "speed = 95\n\n" },
+      { name: "Tabunan", q1: "Create a Python program checking a user's age variable set to 16, which prints 'Adult' if the age is 18 or older, 'Teen' if the age is between 13 and 17, and 'Child' for anyone younger.", q2: "Write a Python script that calculates ticket costs based on an age variable of 65, printing '$5' if the age is under 12, '$8' if the age is between 12 and 17, '$12' if the age is between 18 and 59, and '$7' for senior citizens aged 60 and above.", t1: "age = 16\n\n", t2: "age = 65\n\n" },
+      { name: "Regodon", q1: "Write a Python script evaluating a store purchase total set to 750 pesos, displaying '20% Discount' if the purchase is at least 1000, '10% Discount' if it is at least 500, and 'No Discount' otherwise.", q2: "Create a Python script assessing a worker's experience set to 4 years, printing 'Trainee' if experience is less than 1 year, 'Junior' if between 1 and 2 years, 'Mid-level' if between 3 and 5 years, and 'Senior' for anything higher.", t1: "total = 750\n\n", t2: "exp = 4\n\n" },
+      { name: "Ordiz", q1: "Create a Python program with a number variable set to -5, printing 'Positive' if the number is greater than zero, 'Zero' if it equals zero, and 'Negative' if it is less than zero.", q2: "Write a Python script checking a 24-hour time variable set to 14, printing 'Morning' if time is between 5 and 11, 'Afternoon' if between 12 and 16, 'Evening' if between 17 and 21, and 'Night' for all remaining hours.", t1: "num = -5\n\n", t2: "hour = 14\n\n" },
+      { name: "Tago", q1: "Write a Python script assessing a bank balance variable set to 3200, outputting 'Good Standing' if balance is at least 5000, 'Low Balance' if balance is between 0 and 4999, and 'Overdrawn' if balance is negative.", q2: "Create a Python script evaluating a student's GPA of 3.8, outputting 'Summa Cum Laude' if GPA is 3.9 or higher, 'Magna Cum Laude' if between 3.7 and 3.89, 'Cum Laude' if between 3.5 and 3.69, and 'Regular Passing' otherwise.", t1: "bal = 3200\n\n", t2: "gpa = 3.8\n\n" },
+      { name: "Roquillas", q1: "Write a Python program checking a sprinter's finish time set to 11.5 seconds, displaying 'Gold' if time is 10 seconds or under, 'Silver' if between 10.1 and 12 seconds, and 'Bronze' otherwise.", q2: "Create a Python program checking wind speed set to 45 km/h, displaying 'Calm' if speed is under 10, 'Breezy' if between 10 and 29, 'Windy' if between 30 and 59, and 'Gale' for speeds 60 and above.", t1: "t = 11.5\n\n", t2: "wind = 45\n\n" },
+      { name: "Romanos", q1: "Write a Python script evaluating phone battery set to 15 percent, outputting 'Fully Charged' if battery is 100, 'Sufficient' if between 20 and 99, and 'Low Battery' if below 20.", q2: "Write a Python script processing a drink size set to 14 ounces, outputting 'Small' if 8 ounces or less, 'Medium' if between 9 and 12 ounces, 'Large' if between 13 and 16 ounces, and 'Extra Large' for larger sizes.", t1: "battery = 15\n\n", t2: "ounces = 14\n\n" },
+      { name: "Dalanon", q1: "Write a Python script checking monthly income set to 35000 pesos, displaying 'Tax Bracket A' if income is 50000 or more, 'Tax Bracket B' if income is between 20000 and 49999, and 'Tax Exempt' otherwise.", q2: "Create a Python program evaluating earthquake magnitude set to 5.4, displaying 'Minor' if magnitude is under 4.0, 'Light' if between 4.0 and 4.9, 'Moderate' if between 5.0 and 5.9, and 'Strong' for 6.0 or greater.", t1: "income = 35000\n\n", t2: "mag = 5.4\n\n" },
+      { name: "Desabille", q1: "Create a Python program evaluating attendance percentage set to 72, printing 'Eligible' if attendance is 80 or above, 'Warning' if attendance is between 65 and 79, and 'Ineligible' otherwise.", q2: "Write a Python script checking rainfall intensity set to 8 mm per hour, printing 'No Jacket' if rainfall is 0, 'Light Raincoat' if rainfall is between 1 and 5, 'Heavy Raincoat' if between 6 and 15, and 'Stay Indoors' for anything higher.", t1: "att = 72\n\n", t2: "rain = 8\n\n" },
+      { name: "Calamba", q1: "Write a Python program checking file size set to 250 megabytes, printing 'Large File' if size exceeds 500, 'Medium File' if size is between 100 and 500, and 'Small File' for smaller sizes.", q2: "Create a Python program checking reward points set to 650, printing 'Bronze' if points are under 100, 'Silver' if between 100 and 499, 'Gold' if between 500 and 999, and 'Platinum' for 1000 or more.", t1: "size_mb = 250\n\n", t2: "pts = 650\n\n" },
+      { name: "Velasco", q1: "Write a Python script checking fuel level set to 25 percent, printing 'Full' if fuel is 90 or above, 'Half Tank' if fuel is between 30 and 89, and 'Refuel Now' if fuel is below 30.", q2: "Write a Python script evaluating typing speed set to 75 words per minute, printing 'Beginner' if speed is under 30, 'Intermediate' if between 30 and 59, 'Advanced' if between 60 and 89, and 'Expert' for 90 and above.", t1: "fuel = 25\n\n", t2: "wpm = 75\n\n" },
+      { name: "Beroy", q1: "Create a Python program evaluating shipping distance set to 120 km, printing 'Local Shipping' if distance is 50 km or less, 'Regional Shipping' if between 51 and 200 km, and 'National Shipping' for longer distances.", q2: "Write a Python program assigning letter grades for a score set to 84, printing 'A' if score is 90 or above, 'B' if between 80 and 89, 'C' if between 70 and 79, and 'Repeat' for scores under 70.", t1: "dist = 120\n\n", t2: "score = 84\n\n" },
+      { name: "Arnaiz", q1: "Write a Python script assessing water temperature set to 105 Celsius, printing 'Steam' if temperature is 100 or higher, 'Liquid' if temperature is between 1 and 99, and 'Ice' if temperature is 0 or below.", q2: "Create a Python script assessing ambient noise set to 85 decibels, printing 'Quiet' if noise is under 40, 'Moderate' if between 40 and 69, 'Loud' if between 70 and 99, and 'Dangerous' for 100 or above.", t1: "temp_c = 105\n\n", t2: "db = 85\n\n" },
+      { name: "Ambida", q1: "Write a Python program checking phone storage used set to 88 percent, printing 'Storage Full' if usage is 95 or higher, 'Storage Warning' if usage is between 80 and 94, and 'Storage OK' otherwise.", q2: "Create a Python program checking package weight set to 18 kg, printing 'Light' if weight is 2 kg or less, 'Standard' if between 3 and 10 kg, 'Heavy' if between 11 and 25 kg, and 'Overweight' for heavier packages.", t1: "used = 88\n\n", t2: "weight = 18\n\n" },
+      { name: "Auditor", q1: "Write a Python script measuring server response delay set to 150 milliseconds, displaying 'Fast' if delay is under 100, 'Acceptable' if delay is between 100 and 300, and 'Slow Connection' for higher delays.", q2: "Write a Python script evaluating credit rating set to 710, displaying 'Poor' if score is under 580, 'Fair' if between 580 and 669, 'Good' if between 670 and 739, and 'Excellent' for 740 and above.", t1: "ms = 150\n\n", t2: "cs = 710\n\n" },
+      { name: "Artita", q1: "Create a Python program checking overtime hours set to 8, displaying 'High Overtime' if hours exceed 15, 'Normal Overtime' if hours are between 1 and 15, and 'No Overtime' if hours equal 0.", q2: "Write a Python program checking video game level set to 30, displaying 'Novice' if level is under 10, 'Adventurer' if between 10 and 24, 'Veteran' if between 25 and 49, and 'Master' for level 50 and above.", t1: "ot = 8\n\n", t2: "lvl = 30\n\n" },
+      { name: "Suansing", q1: "Write a Python script evaluating air quality index set to 75, displaying 'Good' if index is 50 or below, 'Moderate' if index is between 51 and 100, and 'Unhealthy' for higher index values.", q2: "Create a Python script evaluating daily steps set to 8200, displaying 'Sedentary' if steps are under 5000, 'Low Active' if between 5000 and 7499, 'Active' if between 7500 and 9999, and 'Very Active' for 10000 or more.", t1: "aqi = 75\n\n", t2: "steps = 8200\n\n" },
+      { name: "Faelnar", q1: "Write a Python program checking password length set to 10 characters, displaying 'Strong' if length is 12 or more, 'Moderate' if length is between 8 and 11, and 'Weak' for shorter passwords.", q2: "Write a Python program checking humidity set to 70 percent, displaying 'Dry' if humidity is under 30, 'Comfortable' if between 30 and 60, 'Humid' if between 61 and 80, and 'Sweltering' for higher values.", t1: "len_pw = 10\n\n", t2: "humidity = 70\n\n" },
+      { name: "Lanticse", q1: "Write a Python script checking Wi-Fi signal strength set to -72 dBm, printing 'Strong Signal' if signal is -60 or higher, 'Weak Signal' if between -80 and -61, and 'No Signal' for weaker signals.", q2: "Create a Python script checking online cart value set to 45 dollars, printing 'Free Shipping' if cart is 100 or more, '$5 Shipping' if between 50 and 99, '$10 Shipping' if between 20 and 49, and '$15 Shipping' for smaller orders.", t1: "rssi = -72\n\n", t2: "cart = 45\n\n" },
+      { name: "Cabeltes", q1: "Create a Python program checking room temperature set to 16 Celsius, printing 'Heating On' if temperature is under 18, 'Climate Ideal' if between 18 and 24, and 'Cooling On' if above 24.", q2: "Write a Python program checking movie runtime set to 110 minutes, printing 'Short' if runtime is under 90, 'Standard' if between 90 and 120, 'Long' if between 121 and 180, and 'Epic' for longer films.", t1: "temp = 16\n\n", t2: "mins = 110\n\n" },
+      { name: "Omas-as", q1: "Write a Python script checking internet download speed set to 45 Mbps, displaying 'High Speed' if speed is 100 or higher, 'Medium Speed' if between 25 and 99, and 'Low Speed' for lower speeds.", q2: "Write a Python script evaluating restaurant bill total set to 65 dollars, displaying 'Small' if bill is under 20, 'Average' if between 20 and 49, 'Large' if between 50 and 99, and 'Banquet' for bills 100 and above.", t1: "speed = 45\n\n", t2: "bill = 65\n\n" },
+      { name: "Cotamora", q1: "Write a Python program measuring engine speed set to 6200 RPM, outputting 'Redline' if RPM exceeds 6000, 'Normal' if between 1000 and 6000, and 'Engine Off / Idle' for lower RPMs.", q2: "Create a Python program checking rider height set to 130 cm, outputting 'Under Height' if height is under 110, 'Junior Rider' if between 110 and 139, 'Full Rider' if between 140 and 200, and 'Exceeds Limit' for taller riders.", t1: "rpm = 6200\n\n", t2: "height_cm = 130\n\n" },
+      { name: "Gundaya", q1: "Create a Python script checking system RAM usage set to 92 percent, outputting 'Critical Usage' if usage is 90 or higher, 'Moderate Usage' if between 50 and 89, and 'Low Usage' for lower values.", q2: "Write a Python script checking bank loan duration set to 24 months, outputting 'Short Term' if duration is 12 months or less, 'Medium Term' if between 13 and 36 months, 'Long Term' if between 37 and 72 months, and 'Extended Term' for longer loans.", t1: "ram = 92\n\n", t2: "months = 24\n\n" },
+      { name: "Sandot", q1: "Write a Python program checking daily water consumption set to 220 liters, outputting 'High Consumption' if consumption exceeds 300, 'Average' if between 100 and 300, and 'Low Consumption' for lower amounts.", q2: "Write a Python program checking store item quantity set to 7 units, outputting 'No Discount' if count is under 3, '5% Off' if between 3 and 5, '10% Off' if between 6 and 9, and '20% Off' for 10 or more items.", t1: "liters = 220\n\n", t2: "count = 7\n\n" },
+      { name: "Ansihagan", q1: "Write a Python script checking ambient light intensity set to 450 lux, outputting 'Bright' if light exceeds 1000, 'Dim' if between 100 and 1000, and 'Dark' for lower light levels.", q2: "Create a Python script assessing marathon finish time set to 3.2 hours, outputting 'Elite' if time is under 2.5 hours, 'Advanced' if between 2.5 and 3.4 hours, 'Intermediate' if between 3.5 and 4.4 hours, and 'Finisher' for longer times.", t1: "lux = 450\n\n", t2: "hrs = 3.2\n\n" },
+      { name: "Platero", q1: "Create a Python program checking available hard drive space set to 8 GB, displaying 'Free Up Space' if space is under 10, 'Space Getting Low' if between 10 and 50, and 'Sufficient Space' if above 50.", q2: "Write a Python program checking hotel rating set to 4 stars, displaying 'Standard' if stars are 2 or fewer, 'Comfort' if stars equal 3, 'Deluxe' if stars equal 4, and 'Luxury' for 5 stars.", t1: "disk_gb = 8\n\n", t2: "stars = 4\n\n" },
+      { name: "Cabaluna", q1: "Write a Python script checking sleep duration set to 6 hours, outputting 'Optimal' if sleep is between 7 and 9 hours, 'Over-sleeping' if sleep exceeds 9 hours, and 'Sleep Deprived' if sleep is under 7 hours.", q2: "Write a Python script checking mobile data plan usage set to 4.5 GB, outputting 'Tier 1' if usage is 2 GB or less, 'Tier 2' if between 2.1 and 5 GB, 'Tier 3' if between 5.1 and 10 GB, and 'Unlimited Tier' for higher usage.", t1: "sleep_hrs = 6\n\n", t2: "data_gb = 4.5\n\n" },
+      { name: "Españo", q1: "Write a Python program checking processor temperature set to 90 Celsius, outputting 'Overheating' if temperature exceeds 85, 'Warm' if between 50 and 85, and 'Cool' if under 50.", q2: "Create a Python program checking swim distance set to 300 meters, outputting 'Sprint' if distance is 100 meters or less, 'Mid-Distance' if between 101 and 400 meters, 'Distance' if between 401 and 1500 meters, and 'Marathon' for longer distances.", t1: "cpu_temp = 90\n\n", t2: "meters = 300\n\n" },
+      { name: "Langres", q1: "Create a Python script evaluating gym attendance set to 10 active days per month, printing 'Regular' if attendance is 15 days or more, 'Occasional' if between 5 and 14 days, and 'Inactive' for fewer days.", q2: "Write a Python script evaluating flight delay set to 45 minutes, printing 'On Time' if delay is 15 minutes or less, 'Slight Delay' if between 16 and 60 minutes, 'Major Delay' if between 61 and 180 minutes, and 'Canceled' for longer delays.", t1: "days = 10\n\n", t2: "delay_mins = 45\n\n" },
+      { name: "Advencula", q1: "Write a Python program checking automobile tire pressure set to 28 PSI, printing 'Overinflated' if pressure exceeds 35, 'Optimal' if between 30 and 35, and 'Underinflated' if pressure is under 30.", q2: "Write a Python program checking solar panel generation set to 12 kW, printing 'Low Yield' if generation is under 5 kW, 'Medium Yield' if between 5 and 14 kW, 'High Yield' if between 15 and 29 kW, and 'Peak Yield' for 30 kW or higher.", t1: "psi = 28\n\n", t2: "kw = 12\n\n" },
+      { name: "Sale", q1: "Write a Python script checking bank transfer amount set to 12000 pesos, displaying 'Flagged for Review' if amount exceeds 10000, 'Standard Transfer' if between 100 and 10000, and 'Micro Transaction' for smaller amounts.", q2: "Create a Python script checking concert venue capacity set to 5000 seats, displaying 'Club' if capacity is under 500, 'Hall' if between 500 and 2999, 'Arena' if between 3000 and 14999, and 'Stadium' for 15000 or more seats.", t1: "amt = 12000\n\n", t2: "cap = 5000\n\n" },
+      { name: "Potutan", q1: "Create a Python program checking oven preheat temperature set to 180 Celsius, displaying 'Preheated' if temperature is 200 or higher, 'Warming Up' if between 50 and 199, and 'Off' if under 50.", q2: "Write a Python program checking annual plant growth set to 22 cm, displaying 'Slow Growth' if growth is under 5 cm, 'Moderate Growth' if between 5 and 14 cm, 'Fast Growth' if between 15 and 29 cm, and 'Rapid Growth' for 30 cm or more.", t1: "temp = 180\n\n", t2: "growth_cm = 22\n\n" },
+      { name: "Mejorada", q1: "Write a Python script checking elevator cargo weight set to 720 kg, printing 'Overloaded' if weight exceeds 800, 'Near Capacity' if between 600 and 800, and 'Safe' if under 600.", q2: "Write a Python script checking video display vertical height set to 1080 pixels, printing 'SD' if resolution is under 720, 'HD' if between 720 and 1079, 'FHD' if between 1080 and 2159, and '4K UHD' for 2160 pixels or higher.", t1: "weight_kg = 720\n\n", t2: "px = 1080\n\n" },
+      { name: "Cubero", q1: "Write a Python program evaluating sound volume set to 85 percent, outputting 'Muted' if volume equals 0, 'Safe Level' if volume is between 1 and 70, and 'Too Loud' for volume levels above 70.", q2: "Create a Python program evaluating novel length set to 320 pages, outputting 'Short Story' if pages are under 50, 'Novella' if between 50 and 199, 'Novel' if between 200 and 499, and 'Epic Novel' for 500 pages or more.", t1: "vol = 85\n\n", t2: "pg = 320\n\n" },
+      { name: "Gabriel", q1: "Create a Python script checking solar battery charge set to 99 percent, outputting 'Fully Charged' if charge is 98 or higher, 'Charging' if between 20 and 97, and 'Critical Reserve' if charge is below 20.", q2: "Write a Python script checking coffee roasting temperature set to 210 Celsius, outputting 'Light Roast' if temperature is under 200, 'Medium Roast' if between 200 and 219, 'Dark Roast' if between 220 and 239, and 'Over-roasted' for higher temperatures.", t1: "charge = 99\n\n", t2: "roast_temp = 210\n\n" },
+      { name: "Daabay", q1: "Write a Python program evaluating student test attempt count set to 3, printing 'Allowed' if attempts are under 3, 'Last Attempt' if attempts equal 3, and 'Blocked' for more attempts.", q2: "Write a Python program evaluating software bug priority rating set to 8, printing 'Low' if rating is under 3, 'Medium' if between 3 and 6, 'High' if between 7 and 8, and 'Critical' for rating 9 or higher.", t1: "attempts = 3\n\n", t2: "priority = 8\n\n" }
+    ];
+
+    let editor1, editor2;
+
+    // Populate Student Selection Menu
+    const select = document.getElementById("studentSelect");
+    students.forEach((s, idx) => {
+      const opt = document.createElement("option");
+      opt.value = idx;
+      opt.textContent = `${idx + 1}. ${s.name}`;
+      select.appendChild(opt);
+    });
+
+    // Render Selected Questions & Python Editors
+    function loadStudentQuestions() {
+      const idx = select.value;
+      const area = document.getElementById("examArea");
+
+      if (idx === "") {
+        area.innerHTML = "";
+        return;
+      }
+
+      const s = students[idx];
+      area.innerHTML = `
+        <div class="question-card active">
+          <div class="q-title">Question 1 for ${s.name} (Structure: if, elif, else)</div>
+          <div class="q-text">${s.q1}</div>
+          <div class="code-container">
+            <textarea id="code1">${s.t1}</textarea>
+          </div>
+          <button class="copy-btn" onclick="copyCode(editor1)">📋 Copy Code to OneCompiler</button>
+        </div>
+
+        <div class="question-card active">
+          <div class="q-title">Question 2 for ${s.name} (Structure: if, elif, elif, else)</div>
+          <div class="q-text">${s.q2}</div>
+          <div class="code-container">
+            <textarea id="code2">${s.t2}</textarea>
+          </div>
+          <button class="copy-btn" onclick="copyCode(editor2)">📋 Copy Code to OneCompiler</button>
+        </div>
+      `;
+
+      // Initialize Python CodeMirror Editors
+      editor1 = CodeMirror.fromTextArea(document.getElementById("code1"), {
+        mode: "python",
+        theme: "dracula",
+        lineNumbers: true,
+        indentUnit: 4,
+        tabSize: 4
+      });
+
+      editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {
+        mode: "python",
+        theme: "dracula",
+        lineNumbers: true,
+        indentUnit: 4,
+        tabSize: 4
+      });
+    }
+
+    function copyCode(editorInstance) {
+      if (!editorInstance) return;
+      const text = editorInstance.getValue();
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Python code copied! Now paste it into OneCompiler to run and test.");
+      });
+    }
+  </script>
+</body>
+</html>
